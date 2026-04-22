@@ -34,9 +34,13 @@ const dashboardSchema = new mongoose.Schema(
     },
 
     // Controls whether the iframe URL is visible to regular users
-    // true  → users can see and interact with the dashboard
-    // false → users only see "View Only" placeholder, iframe URL is hidden
     shareable: {
+      type: Boolean,
+      default: true,
+    },
+
+    // Controls whether the report is visible to users at all
+    isActive: {
       type: Boolean,
       default: true,
     },

@@ -5,7 +5,7 @@
  * Admin enters email + password which are validated against .env values on the backend.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -19,10 +19,11 @@ const AdminLoginPage = () => {
   const [error, setError] = useState('');
 
   // If already logged in as admin, redirect
-  if (user && user.role === 'admin') {
-    navigate('/admin/dashboards');
-    return null;
-  }
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      navigate('/admin/dashboards', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,83 +41,102 @@ const AdminLoginPage = () => {
     setLoading(false);
   };
 
+  if (user && user.role === 'admin') return null;
+
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col md:flex-row bg-white">
-      {/* Left Hero Section */}
-      <div className="md:w-1/2 bg-slate-900 text-white p-12 flex flex-col justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
-        <div className="relative z-10 max-w-lg mx-auto md:mx-0">
-          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
-            Admin <span className="text-indigo-400">Console</span>
+    <div className="h-[calc(100vh-80px)] flex flex-col md:flex-row bg-[#F8FAFC] overflow-hidden">
+      {/* Left - Hero with Video Background */}
+      <div className="md:w-1/2 lg:w-[55%] bg-slate-950 text-white p-6 md:p-12 flex flex-col justify-center relative ">
+        {/* Video Background */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover mix-blend-screen"
+        >
+          <source src="/background-Central-hub.mp4" type="video/mp4" />
+        </video>
+
+        {/* Overlay for Depth */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-950/40 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
+        
+        <div className="relative z-10 max-w-lg mx-auto md:mx-0 slide-in">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 backdrop-blur-xl border border-amber-500/20 rounded-lg mb-6">
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-400">Restricted Admin Access</span>
+          </div>
+          
+          <h1 className="text-3xl md:text-5xl font-black leading-tight mb-4 tracking-tight">
+            Control<br />
+            <span className="text-amber-500">Center.</span>
           </h1>
-          <p className="text-lg text-slate-300 leading-relaxed">
-            Manage dashboards, users, and hub configurations. Restricted access for administrators only.
+          <p className="text-sm text-slate-300 leading-relaxed max-w-sm font-medium">
+            System administration and report management. Authorized administrative credentials required to proceed.
           </p>
         </div>
       </div>
 
       {/* Right Login Form */}
-      <div className="md:w-1/2 flex items-center justify-center p-8 bg-gray-50">
-        <div className="max-w-md w-full fade-in">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Admin Sign-in</h2>
-            <p className="text-gray-500 text-sm mt-1">
-              Enter your administrator credentials.
+      <div className="md:w-1/2 lg:w-[45%] flex items-center justify-center p-6 md:p-8 bg-[#F8FAFC]">
+        <div className="max-w-sm w-full fade-in space-y-8">
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Admin Sign-in</h2>
+            <p className="text-slate-500 text-xs mt-2 font-bold uppercase tracking-widest">
+              Enter secure credentials
             </p>
           </div>
 
-          {/* Error message */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-              {error}
-            </div>
-          )}
+          <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-6">
+            {/* Error message */}
+            {error && (
+              <div className="p-3 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-[10px] font-bold animate-shake flex items-center gap-2">
+                {error}
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@zuari.com"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 outline-none text-sm"
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
+                  Administrator Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@adventz.com"
+                  required
+                  className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500/50 outline-none transition-all text-sm font-medium"
+                />
+              </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 outline-none text-sm"
-              />
-            </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
+                  Security Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500/50 outline-none transition-all text-sm font-medium"
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gray-900 text-white py-3 rounded font-bold hover:bg-black transition-all uppercase text-sm tracking-wider disabled:opacity-50 cursor-pointer"
-            >
-              {loading ? 'Signing in...' : 'Admin Login'}
-            </button>
-          </form>
-
-          {/* Back to user login */}
-          <button
-            onClick={() => navigate('/')}
-            className="mt-4 text-sm text-indigo-600 hover:underline font-medium cursor-pointer"
-          >
-            ← Back to User Login
-          </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-14 bg-slate-950 text-white rounded-2xl font-black transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer uppercase text-[10px] tracking-widest shadow-lg shadow-slate-200"
+              >
+                {loading ? 'Authenticating...' : 'Authorize Access'}
+              </button>
+            </form>
+          </div>
+          
+          <p className="text-center text-[9px] text-slate-300 font-bold uppercase tracking-widest leading-loose">
+            Secure administrative session only
+          </p>
         </div>
       </div>
     </div>

@@ -19,10 +19,12 @@ const Dashboard = require('../models/Dashboard');
  */
 const getAllDashboards = async (req, res, next) => {
   try {
-    const dashboards = await Dashboard.find().sort({ createdAt: -1 });
+    const isAdmin = req.user.role === 'admin';
+    const query = isAdmin ? {} : { isActive: true };
+    const dashboards = await Dashboard.find(query).sort({ createdAt: -1 });
 
     // If the requester is an admin, return all data as-is
-    if (req.user.role === 'admin') {
+    if (isAdmin) {
       return res.status(200).json({
         success: true,
         count: dashboards.length,
@@ -30,14 +32,13 @@ const getAllDashboards = async (req, res, next) => {
       });
     }
 
-    // For regular users, strip powerBiIframe from non-shareable dashboards
+    // For regular users, flag non-shareable dashboards
     const safeDashboards = dashboards.map((dashboard) => {
       const dashObj = dashboard.toObject();
 
       if (!dashObj.shareable) {
-        // SECURITY: Remove the iframe URL entirely
-        delete dashObj.powerBiIframe;
-        dashObj.viewOnly = true; // Flag so frontend knows to show placeholder
+        // Flag so frontend knows to block the share button via CSS shield
+        dashObj.viewOnly = true;
       }
 
       return dashObj;
@@ -62,7 +63,7 @@ const getDashboardById = async (req, res, next) => {
   try {
     const dashboard = await Dashboard.findById(req.params.id);
 
-    if (!dashboard) {
+    if (!dashboard || (req.user.role !== 'admin' && !dashboard.isActive)) {
       return res.status(404).json({
         success: false,
         message: 'Dashboard not found.',
@@ -71,9 +72,8 @@ const getDashboardById = async (req, res, next) => {
 
     const dashObj = dashboard.toObject();
 
-    // Strip iframe for non-admin users on non-shareable dashboards
+    // Flag for non-admin users on non-shareable dashboards
     if (req.user.role !== 'admin' && !dashObj.shareable) {
-      delete dashObj.powerBiIframe;
       dashObj.viewOnly = true;
     }
 
@@ -92,13 +92,14 @@ const getDashboardById = async (req, res, next) => {
  */
 const createDashboard = async (req, res, next) => {
   try {
-    const { title, category, powerBiIframe, shareable, description } = req.body;
+    const { title, category, powerBiIframe, shareable, isActive, description } = req.body;
 
     const dashboard = await Dashboard.create({
       title,
       category,
       powerBiIframe,
       shareable: shareable !== undefined ? shareable : true,
+      isActive: isActive !== undefined ? isActive : true,
       description: description || '',
     });
 
@@ -118,7 +119,7 @@ const createDashboard = async (req, res, next) => {
  */
 const updateDashboard = async (req, res, next) => {
   try {
-    const { title, category, powerBiIframe, shareable, description } = req.body;
+    const { title, category, powerBiIframe, shareable, isActive, description } = req.body;
 
     const dashboard = await Dashboard.findById(req.params.id);
 
@@ -134,6 +135,7 @@ const updateDashboard = async (req, res, next) => {
     if (category !== undefined) dashboard.category = category;
     if (powerBiIframe !== undefined) dashboard.powerBiIframe = powerBiIframe;
     if (shareable !== undefined) dashboard.shareable = shareable;
+    if (isActive !== undefined) dashboard.isActive = isActive;
     if (description !== undefined) dashboard.description = description;
 
     await dashboard.save();
@@ -142,6 +144,34 @@ const updateDashboard = async (req, res, next) => {
       success: true,
       message: 'Dashboard updated successfully',
       data: dashboard,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * PATCH /api/dashboards/:id/toggle-active
+ * Toggle a dashboard's active status. Admin only.
+ */
+const toggleActiveDashboard = async (req, res, next) => {
+  try {
+    const dashboard = await Dashboard.findById(req.params.id);
+
+    if (!dashboard) {
+      return res.status(404).json({
+        success: false,
+        message: 'Dashboard not found.',
+      });
+    }
+
+    dashboard.isActive = !dashboard.isActive;
+    await dashboard.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Dashboard is now ${dashboard.isActive ? 'active' : 'inactive'}`,
+      data: { isActive: dashboard.isActive },
     });
   } catch (error) {
     next(error);
@@ -179,5 +209,6 @@ module.exports = {
   getDashboardById,
   createDashboard,
   updateDashboard,
+  toggleActiveDashboard,
   deleteDashboard,
 };

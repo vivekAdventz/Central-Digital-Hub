@@ -80,10 +80,16 @@ export const AuthProvider = ({ children }) => {
    * Logout — clear all auth state
    */
   const logout = () => {
-    setUser(null);
-    setToken(null);
+    // NUCLEAR LOGOUT: Clear every single item in local storage
+    localStorage.clear();
+    
+    // Also specifically target our keys just in case browser behavior varies
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    
+    // Clear React state
+    setToken(null);
+    setUser(null);
   };
 
   // Check if user is admin

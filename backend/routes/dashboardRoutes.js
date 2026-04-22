@@ -5,6 +5,7 @@
  * GET    /api/dashboards/:id  → Get single dashboard
  * POST   /api/dashboards      → Create dashboard (admin only)
  * PUT    /api/dashboards/:id  → Update dashboard (admin only)
+ * PATCH  /api/dashboards/:id/toggle-active → Toggle active state (admin only)
  * DELETE /api/dashboards/:id  → Delete dashboard (admin only)
  */
 
@@ -17,6 +18,7 @@ const {
   getDashboardById,
   createDashboard,
   updateDashboard,
+  toggleActiveDashboard,
   deleteDashboard,
 } = require('../controllers/dashboardController');
 
@@ -57,6 +59,15 @@ router.put(
   updateDashboardValidator,
   handleValidation,
   updateDashboard
+);
+
+// Toggle dashboard active status (admin only)
+router.patch(
+  '/:id/toggle-active',
+  adminAuth,
+  dashboardIdValidator,
+  handleValidation,
+  toggleActiveDashboard
 );
 
 // Delete a dashboard (admin only)

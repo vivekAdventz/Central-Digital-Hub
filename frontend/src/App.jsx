@@ -22,6 +22,13 @@ import UserManagement from './pages/admin/UserManagement';
 // Initialize MSAL instance
 const msalInstance = new PublicClientApplication(msalConfig);
 
+// PCA v3 requires explicit initialization
+msalInstance.initialize().then(() => {
+  // Initialization complete
+}).catch(err => {
+  console.error("MSAL Initialization Error:", err);
+});
+
 const App = () => {
   return (
     <MsalProvider instance={msalInstance}>

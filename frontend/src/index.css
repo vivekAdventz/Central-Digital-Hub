@@ -1,39 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-/* ====================================
-   Custom Styles for Dashboard Hub
-   ==================================== */
+@layer base {
+  * {
+    box-sizing: border-box;
+    @apply transition-colors duration-200;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply antialiased bg-slate-50 text-slate-900 overflow-x-hidden;
+  }
 
-/* Base styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  /* Standardizing interactive elements */
+  button, input, select, textarea {
+    @apply rounded-xl outline-none transition-all;
+  }
 }
 
-body {
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Fade-in animation */
+/* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
 }
+
+.fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.slide-in { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 /* Grid background pattern used on login hero */
 .bg-grid-pattern {
@@ -65,21 +64,21 @@ body {
   position: absolute;
   bottom: 0;
   right: 0;
-  height: 35px;
-  width: 150px;
-  background: #f9fafb;
+  height: 40px;
+  width: 200px;
+  background: #F8FAFC; /* Matches dashboard bg */
   z-index: 50;
   pointer-events: all;
-  border-top: 1px solid #e5e7eb;
-  border-left: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
-  font-weight: bold;
-  color: #94a3b8;
+  font-size: 8px;
+  font-weight: 900;
+  color: #CBD5E1;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.2em;
+  border-top: 1px solid #E2E8F0;
+  border-left: 1px solid #E2E8F0;
 }
 
 /* Custom scrollbar for sidebars */
