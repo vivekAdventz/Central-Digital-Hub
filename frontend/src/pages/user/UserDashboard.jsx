@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import API from '../../api/axios';
+import API from '../../api/api';
 import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/Spinner';
 

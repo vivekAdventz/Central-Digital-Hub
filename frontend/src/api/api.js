@@ -1,22 +1,25 @@
 /**
- * Axios Instance
- * ---------------
- * Pre-configured Axios instance with:
- * - Base URL pointing to the backend API
- * - JWT token automatically attached to every request
- * - Response interceptor to handle 401 (expired token) errors
+ * API (Axios Instance)
+ * --------------------
+ * High-performance axios instance configured for AWS Lightsail / Nginx.
+ * Handles dynamic Base URL resolution and automatic JWT authentication.
  */
 
 import axios from 'axios';
 
+// Resolve Base URL:
+// 1. If VITE_API_BASE_URL is defined in .env, use it.
+// 2. Otherwise use '/api' (Nginx proxy path).
+const baseURL = import.meta.env.VITE_API_URL || '/api';
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor — attach JWT token to every request
+// Request Interceptor: Attach security tokens
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -25,17 +28,15 @@ API.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor — handle 401 errors (token expired/invalid)
+// Response Interceptor: Handle auth failures globally
 API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear stored auth data and redirect to login
+      // Session expired or invalid
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/';
