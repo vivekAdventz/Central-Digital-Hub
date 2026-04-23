@@ -35,10 +35,14 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Session expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+    // Determine if the failed request was an initial login attempt
+    const isLoginRequest = 
+      error.config?.url?.includes('/admin/login') || 
+      error.config?.url?.includes('/auth/microsoft');
+
+    if (error.response && error.response.status === 401 && !isLoginRequest) {
+      // Session expired or invalid session - perform nuclear logout
+      localStorage.clear();
       window.location.href = '/';
     }
     return Promise.reject(error);
