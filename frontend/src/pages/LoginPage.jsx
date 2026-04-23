@@ -26,14 +26,10 @@ const LoginPage = () => {
   useEffect(() => {
     const handleRedirect = async () => {
       try {
-        // Safe check: handleRedirectPromise() should only be called if PCA is ready
-        // In MSAL-React, the provider handles most of this, but we'll add a catch-all
         const response = await instance.handleRedirectPromise();
-        
         if (response && response.account) {
           setLoading(true);
           const result = await loginWithMicrosoft(response.account);
-
           if (result.success) {
             navigate('/dashboard');
           } else {
@@ -42,91 +38,73 @@ const LoginPage = () => {
           setLoading(false);
         }
       } catch (err) {
-        // If it's the uninitialized error, we just ignore it for now as it will retry on next render or once ready
-        if (err.errorCode === 'uninitialized_public_client_application') {
-          return;
-        }
-        
+        if (err.errorCode === 'uninitialized_public_client_application') return;
         const isRealError = err.errorCode || err.message?.includes('interaction');
         if (isRealError && !err.message?.includes('user_cancelled')) {
-           setError('Microsoft authentication failed. Please try again.');
+          setError('Microsoft authentication failed. Please try again.');
         }
       }
     };
-
     handleRedirect();
   }, [instance, loginWithMicrosoft, navigate]);
 
   // If already logged in, redirect
   useEffect(() => {
     if (user) {
-      navigate(user.role === 'admin' ? '/admin/dashboards' : '/dashboard', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
 
-  if (user) return null;
-
-  /**
-   * Handle Microsoft login via MSAL redirect
-   */
   const handleMicrosoftLogin = () => {
     setLoading(true);
     setError('');
-
-    // Redirect to Microsoft login page
     instance.loginRedirect(loginRequest).catch((err) => {
       setLoading(false);
       setError('Failed to initiate login redirect.');
     });
   };
 
+  if (user) return null;
+
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col md:flex-row bg-[#F8FAFC] overflow-hidden">
-      {/* Left - Hero with Video Background */}
-      <div className="md:w-1/2 lg:w-[55%] bg-slate-950 text-white p-6 md:p-12 flex flex-col justify-center relative ">
+    <div className="h-[calc(100vh-80px)] flex flex-col md:flex-row bg-white overflow-hidden font-sans">
+      {/* LEFT HERO */}
+      <div className="md:w-1/2 bg-slate-900 text-white p-8 md:p-16 flex flex-col justify-center relative overflow-hidden">
         {/* Video Background */}
         <video 
           autoPlay 
           loop 
           muted 
           playsInline
-          className="absolute inset-0 w-full h-full object-cover mix-blend-screen"
+          className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-40"
         >
           <source src="/background-Central-hub.mp4" type="video/mp4" />
         </video>
-
-        {/* Overlay for Depth */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-950/40 to-transparent pointer-events-none"></div>
-        <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
         
-        <div className="relative z-10 max-w-lg mx-auto md:mx-0 slide-in">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-xl border border-white/10 rounded-lg mb-6">
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-300">Enterprise Secure</span>
-          </div>
-          
-          <h1 className="text-3xl md:text-5xl font-black leading-tight mb-4 tracking-tight">
-            Intelligence,<br />
-            <span className="text-indigo-500">Delivered.</span>
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
+        <div className="relative z-10 max-w-lg">
+          <div className="inline-block px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold uppercase tracking-[0.3em] mb-6 rounded">Identity Verified Gateway</div>
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
+            Enterprise Intelligence, <span className="text-indigo-400">Secured.</span>
           </h1>
-          <p className="text-sm text-slate-300 leading-relaxed max-w-sm font-medium">
-            Strategic analytics and confidential Power BI intelligence for Zuari Industries. Verified corporate access only.
+          <p className="text-lg text-slate-400 leading-relaxed max-w-md">
+            Zuari Industries Analytics Hub. A strictly governed environment for real-time corporate reporting and strategic decision support.
           </p>
         </div>
       </div>
 
-      {/* Right - Minimalist Login */}
-      <div className="md:w-1/2 lg:w-[45%] flex items-center justify-center p-6 md:p-8 bg-[#F8FAFC]">
-        <div className="max-w-sm w-full fade-in space-y-8">
-          <div className="text-center md:text-left">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Portal Access</h2>
-            <p className="text-slate-500 text-xs mt-2 font-bold uppercase tracking-widest">
-              Identity Verification Required
-            </p>
+      {/* RIGHT SIGNIN */}
+      <div className="md:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+        <div className="max-w-md w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="mb-8 text-center md:text-left">
+            <h2 className="text-2xl font-bold text-gray-900">Sign-in</h2>
+            <p className="text-gray-500 text-sm">Use your enterprise credentials to access the data hub.</p>
           </div>
 
-          <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 space-y-6">
+          <div className="space-y-6">
             {error && (
-              <div className="p-3 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-[10px] font-bold animate-shake flex items-center gap-2">
+              <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-[10px] font-bold rounded flex items-center gap-2">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                 {error}
               </div>
             )}
@@ -134,21 +112,29 @@ const LoginPage = () => {
             <button
               onClick={handleMicrosoftLogin}
               disabled={loading}
-              className="w-full h-14 bg-slate-900 text-white rounded-2xl font-bold transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+              className="w-full bg-indigo-600 text-white py-4 rounded font-bold hover:bg-indigo-700 transition-all uppercase text-xs tracking-[0.2em] shadow-lg shadow-indigo-200 flex items-center justify-center gap-4 disabled:opacity-50"
             >
-              <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none">
-                <rect x="1" y="1" width="9" height="9" fill="#F25022" />
-                <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
-                <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
-                <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
-              </svg>
-              <span className="uppercase text-[10px] tracking-widest">Microsoft Login</span>
+              {loading ? (
+                <span>Authorizing...</span>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" viewBox="0 0 21 21" fill="none">
+                    <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+                    <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+                    <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+                    <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
+                  </svg>
+                  Authorized User Access
+                </>
+              )}
             </button>
+
+            <div className="pt-8 border-t border-gray-200">
+              <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-loose">
+                Power Bi Hub version 1.0
+              </p>
+            </div>
           </div>
-          
-          <p className="text-center text-[9px] text-slate-300 font-bold uppercase tracking-widest leading-loose">
-            © 2026 Zuari Digital • v2.4
-          </p>
         </div>
       </div>
     </div>

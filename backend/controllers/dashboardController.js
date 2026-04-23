@@ -23,31 +23,10 @@ const getAllDashboards = async (req, res, next) => {
     const query = isAdmin ? {} : { isActive: true };
     const dashboards = await Dashboard.find(query).sort({ createdAt: -1 });
 
-    // If the requester is an admin, return all data as-is
-    if (isAdmin) {
-      return res.status(200).json({
-        success: true,
-        count: dashboards.length,
-        data: dashboards,
-      });
-    }
-
-    // For regular users, flag non-shareable dashboards
-    const safeDashboards = dashboards.map((dashboard) => {
-      const dashObj = dashboard.toObject();
-
-      if (!dashObj.shareable) {
-        // Flag so frontend knows to block the share button via CSS shield
-        dashObj.viewOnly = true;
-      }
-
-      return dashObj;
-    });
-
     res.status(200).json({
       success: true,
-      count: safeDashboards.length,
-      data: safeDashboards,
+      count: dashboards.length,
+      data: dashboards,
     });
   } catch (error) {
     next(error);
@@ -70,16 +49,9 @@ const getDashboardById = async (req, res, next) => {
       });
     }
 
-    const dashObj = dashboard.toObject();
-
-    // Flag for non-admin users on non-shareable dashboards
-    if (req.user.role !== 'admin' && !dashObj.shareable) {
-      dashObj.viewOnly = true;
-    }
-
     res.status(200).json({
       success: true,
-      data: dashObj,
+      data: dashboard,
     });
   } catch (error) {
     next(error);
@@ -98,7 +70,6 @@ const createDashboard = async (req, res, next) => {
       title,
       category,
       powerBiIframe,
-      shareable: shareable !== undefined ? shareable : true,
       isActive: isActive !== undefined ? isActive : true,
       description: description || '',
     });
@@ -134,7 +105,6 @@ const updateDashboard = async (req, res, next) => {
     if (title !== undefined) dashboard.title = title;
     if (category !== undefined) dashboard.category = category;
     if (powerBiIframe !== undefined) dashboard.powerBiIframe = powerBiIframe;
-    if (shareable !== undefined) dashboard.shareable = shareable;
     if (isActive !== undefined) dashboard.isActive = isActive;
     if (description !== undefined) dashboard.description = description;
 

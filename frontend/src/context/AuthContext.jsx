@@ -95,6 +95,8 @@ export const AuthProvider = ({ children }) => {
   // Check if user is admin
   const isAdmin = user?.role === 'admin';
 
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
   return (
     <AuthContext.Provider
       value={{
@@ -102,6 +104,8 @@ export const AuthProvider = ({ children }) => {
         token,
         loading,
         isAdmin,
+        isAdminModalOpen,
+        setIsAdminModalOpen,
         loginWithMicrosoft,
         adminLogin,
         logout,

@@ -33,12 +33,6 @@ const dashboardSchema = new mongoose.Schema(
       required: [true, 'Power BI iframe is required'],
     },
 
-    // Controls whether the iframe URL is visible to regular users
-    shareable: {
-      type: Boolean,
-      default: true,
-    },
-
     // Controls whether the report is visible to users at all
     isActive: {
       type: Boolean,

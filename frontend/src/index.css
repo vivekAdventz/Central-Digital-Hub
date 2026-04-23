@@ -59,26 +59,27 @@
   border: none;
 }
 
-/* Security overlay that blocks Power BI share/info buttons */
+/* Security overlay that blocks Power BI footer (pages, share, fullscreen) */
 .report-shield {
   position: absolute;
   bottom: 0;
+  left: 0;
   right: 0;
-  height: 40px;
-  width: 200px;
+  height: 36px;
   background: #F8FAFC; /* Matches dashboard bg */
   z-index: 50;
   pointer-events: all;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end; /* Push text to the right */
+  padding-right: 24px;
   font-size: 8px;
   font-weight: 900;
   color: #CBD5E1;
   text-transform: uppercase;
   letter-spacing: 0.2em;
   border-top: 1px solid #E2E8F0;
-  border-left: 1px solid #E2E8F0;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.02);
 }
 
 /* Custom scrollbar for sidebars */

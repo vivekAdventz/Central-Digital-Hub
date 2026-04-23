@@ -21,7 +21,7 @@ const AdminLoginPage = () => {
   // If already logged in as admin, redirect
   useEffect(() => {
     if (user && user.role === 'admin') {
-      navigate('/admin/dashboards', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
 
@@ -33,7 +33,7 @@ const AdminLoginPage = () => {
     const result = await adminLogin(email, password);
 
     if (result.success) {
-      navigate('/admin/dashboards');
+      navigate('/dashboard');
     } else {
       setError(result.message);
     }
@@ -135,7 +135,7 @@ const AdminLoginPage = () => {
           </div>
           
           <p className="text-center text-[9px] text-slate-300 font-bold uppercase tracking-widest leading-loose">
-            Secure administrative session only
+            Power Bi Hub version 1.0
           </p>
         </div>
       </div>
